@@ -1,0 +1,24 @@
+name: Sync app-ads.txt
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs automatically every day at 00:00 UTC
+  workflow_dispatch: # Allows you to trigger the workflow manually
+
+jobs:
+  update-ads:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout my repo
+        uses: actions/checkout@v4
+
+      - name: Fetch latest app-ads.txt from CAS.AI
+        run: |
+          curl -s https://raw.githubusercontent.com/cleveradssolutions/App-ads.txt/master/app-ads.txt -o app-ads.txt
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add app-ads.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update app-ads.txt from CAS.AI master source" && git push)
